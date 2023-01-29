@@ -18,7 +18,7 @@ echo "==> Generating build files"
 cmake -G "Ninja" -DCMAKE_BUILD_TYPE="$mode" ../
 echo -e "\n==> Building project"
 ninja | ../lib/shiki/shiki
-echo "==> Successfully built HelloWorld executable"
+printf "==> Successfully built %s executable" "$EXECUTABLE"
 printf "\nDo you want to install this executable globally? [Y/n] "
 read -r installExecutable
 if [ "$installExecutable" = "" ]; then
@@ -31,8 +31,8 @@ if [ "$installExecutable" != "n" ] && [ "$installExecutable" = "Y" ]; then
       exit 1
   fi
   if test -f "$EXECUTABLE"; then
-    echo "==> Installing HelloWorld globally..."
-    cp ./HelloWorld /usr/bin/
+    printf "==> Installing %s globally..." "$EXECUTABLE"
+    cp ./$EXECUTABLE /usr/bin/
     echo "==> Successfully installed"
   else
     echo "Please first run ./build.sh!"
