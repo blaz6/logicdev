@@ -9,6 +9,6 @@ fi
 echo "==> Generating build files"
 cmake -G "Ninja" -DCMAKE_BUILD_TYPE="$mode" ./
 echo "==> Building project"
-ninja
+ninja | ./lib/shiki/shiki
 echo "==> Successfully built HelloWorld executable"
 exit 1
