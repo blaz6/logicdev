@@ -1,5 +1,6 @@
 #!/bin/sh
 EXECUTABLE=./HelloWorld
+BUILD_DIR=./build/
 mode=$1
 if [ "$mode" = "" ]; then
   mode="Release"
@@ -8,11 +9,15 @@ if [ "$mode" != "Debug" ] && [ "$mode" != "Release" ]; then
   printf "==> Invalid Mode: %s\nUsage: $0 [Debug|Release]" "$mode"
   exit 0
 fi
-printf "==> Using %s Mode!\n" "$mode"
+echo -e "==> Using $mode Mode!\n"
+if [ ! -d "$BUILD_DIR" ]; then
+  mkdir "$BUILD_DIR"
+fi
+cd "$BUILD_DIR" || exit 1
 echo "==> Generating build files"
-cmake -G "Ninja" -DCMAKE_BUILD_TYPE="$mode" ./
-echo "==> Building project"
-ninja | ./lib/shiki/shiki
+cmake -G "Ninja" -DCMAKE_BUILD_TYPE="$mode" ../
+echo -e "\n==> Building project"
+ninja | ../lib/shiki/shiki
 echo "==> Successfully built HelloWorld executable"
 printf "\nDo you want to install this executable globally? [Y/n] "
 read -r installExecutable
