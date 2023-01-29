@@ -19,13 +19,9 @@ $ git clone https://github.com/LogicApples/cpp-helloworld
 ```shell
 $ cd <cpp-helloworld>
 ```
-3. Run build.sh (Debug or Release) to create an executable binary
+3. Run build.sh to create an executable binary
 ```shell
-$ ./build.sh Debug|Release
-```
-4. This will create an executable binary which can be used in this directory only. If you wish to install it globally, run install.sh
-```shell
-$ ./install.sh
+$ ./build.sh Debug|Release (Default: Release)
 ```
 
 ## Updating
@@ -33,12 +29,10 @@ To update the program go to the cloned directory and enter the following command
 ```shell
 $ git pull
 $ ./build.sh
-$ ./install.sh
 ```
 
 ## Uninstall
-If you haven't ran the install script you can just delete the directory you cloned into when installing.
-If you ran the install script then you can uninstall the program globally with this command:
+You can uninstall the program globally with this command:
 ```shell
 $ <ProgramBinary> self-uninstall
 ```
