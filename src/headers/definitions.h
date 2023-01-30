@@ -1,3 +1,3 @@
 #pragma once
 
-#define EXECUTABLE_NAME "HelloWorld"
+#define EXECUTABLE_NAME "logicdev"

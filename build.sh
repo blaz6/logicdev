@@ -1,5 +1,5 @@
 #!/bin/sh
-EXECUTABLE=./HelloWorld
+EXECUTABLE=./logicdev
 BUILD_DIR=./buildDir/
 mode=$1
 
