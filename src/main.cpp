@@ -1,17 +1,22 @@
 #include <ctime>
+
+// Discord RPC
+#include "discord/discord.h"
+
 #include <csignal>
+#include <memory>
 #include <iostream>
 #include <cstring>
 #include "headers/log.h"
 #include "headers/checkFileExistence.h"
-#define EXECUTABLE_NAME "HelloWorld"
+#include "headers/definitions.h"
 
 using std::cout;
 using std::string;
 
 int main(int argc, char *argv[]) {
     Log log;
-    log.setLevel(Log::WARNING_LEVEL);
+    log.setLevel(Log::INFO_LEVEL);
     for (int i = 0; i < argc; ++i) {
         if (!strcmp(argv[i], "self-uninstall")) {
             log.println("==> Uninstalling...");
@@ -27,6 +32,30 @@ int main(int argc, char *argv[]) {
             exit(0);
         } else if (!strcmp(argv[i], "tut")) {
             log.info("Tutor");
+            discord::Core *core = nullptr;
+            discord::Result result = discord::Core::Create(795592654058160148,
+                                                           static_cast<uint64_t>(discord::CreateFlags::Default), &core);
+
+            if (result != discord::Result::Ok) {
+                std::cout << "Error initializing Discord: " << "\n";
+                return 1;
+            }
+            while (true) {
+                discord::Activity activity{};
+                activity.SetState("Playing");
+                activity.SetDetails("C++");
+                core->ActivityManager().UpdateActivity(activity, [&log](discord::Result result) {
+                    cout << static_cast<bool>(discord::Result::Ok) << "\n";
+                    if (result == discord::Result::Ok) {
+                        log.info("Successfully updated activity");
+                    } else
+                        log.error("Failed to update activity:");
+                });
+                cout << "updating activity" << "\n";
+                usleep(1000000 * 5);
+            }
+
+            // });
             std::cin.get();
             exit(0);
         } else if (!strcmp(argv[i], "time")) {
