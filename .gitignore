@@ -1,3 +1,6 @@
 .cmake
 .idea
-build
+lib/discord
+src/discord
+config
+buildDir
