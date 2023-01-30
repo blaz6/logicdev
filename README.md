@@ -13,11 +13,11 @@ $ sudo pacman -Sy cmake ninja
 #### Steps:
 1. Clone this repository to a folder of your choice
 ```shell
-$ git clone https://github.com/LogicApples/cpp-helloworld
+$ git clone https://github.com/LogicApples/logicdev
 ```
 2. cd into the new directory
 ```shell
-$ cd <cpp-helloworld>
+$ cd <logicdev>
 ```
 3. Run build.sh to create an executable binary
 ```shell
