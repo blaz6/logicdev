@@ -27,7 +27,7 @@ string Command::description;
 
 int main(int argc, char *argv[]) {
     fs::path path = __FILE__;
-    std::map<std::string, std::string> env_vars = read_dotenv(path.remove_filename().string() + "/.env");
+    std::map<std::string, std::string> env_vars = read_dotenv(path.remove_filename().string() + "/../.env");
     for (const auto& [key, value] : env_vars) {
         if(key == "BOT_TOKEN") BOT_TOKEN = value;
     }
