@@ -5,3 +5,6 @@
 
 // DEV
 #include "../Commands/Dev/register.hpp"
+
+//FUN
+#include "../Commands/Fun/8ball.hpp"

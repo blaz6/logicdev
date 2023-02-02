@@ -6,21 +6,26 @@
 #include "Command.hpp"
 #include "Dev/register.hpp"
 
-//void registerCommands(dpp::cluster client) {
-//    std::vector<std::string> files;
-//    fs::path path = __FILE__;
-//    for (const auto &entry : fs::directory_iterator(path.remove_filename().string() + "/Commands")) {
-//        if (fs::is_regular_file(entry)) continue;
-//        for (const auto &file : fs::directory_iterator(entry.path())) {
-//            files.push_back(file.path().filename().string().substr(0, file.path().filename().string().length() - 4));
-//        }
-//    }
-//
-//    Ping p;p.~Ping();
-//    std::cout << Command::get_name() << " : " << Command::get_description() << std::endl;
-//    client.global_command_create(dpp::slashcommand(Command::get_name(), Command::get_description(), client.me.id));
-//
-//    Register r;r.~Register();
-//    std::cout << Command::get_name() << " : " << Command::get_description() << std::endl;
-//    client.global_command_create(dpp::slashcommand(Command::get_name(), Command::get_description(), client.me.id));
-//}
+void register_commands(dpp::cluster& client) {
+    if (dpp::run_once<struct register_bot_commands>()) {
+            Ping p;p.~Ping();
+            std::cout << Command::get_name() << " : " << Command::get_description() << std::endl;
+            client.global_command_create(dpp::slashcommand(Command::get_name(), Command::get_description(), client.me.id));
+
+            Register r;r.~Register();
+            std::cout << Command::get_name() << " : " << Command::get_description() << std::endl;
+            client.global_command_create(dpp::slashcommand(Command::get_name(), Command::get_description(), client.me.id));
+
+            Ball b;b.~Ball();
+            std::cout << Command::get_name() << " : " << Command::get_description() << std::endl;
+            client.global_command_create(dpp::slashcommand(
+                    Command::get_name(),
+                    Command::get_description(),
+                    client.me.id));
+            dpp::slashcommand c = dpp::slashcommand(
+                    Command::get_name(),
+                    Command::get_description(),
+                    client.me.id);
+            c.add_option(dpp::command_option(dpp::command_option_type::co_string, "vprašanje", "vprašanje"));
+    }
+}

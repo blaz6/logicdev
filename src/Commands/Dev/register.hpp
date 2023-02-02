@@ -1,6 +1,8 @@
 #pragma once
 #include "../Command.hpp"
 #include <dpp/dpp.h>
+#include "../../headers/all_commands.h"
+#include "../Fun/8ball.hpp"
 #include "../register_commands.hpp"
 
 class Register : Command {
@@ -10,8 +12,8 @@ class Register : Command {
         set_description("registers commands");
     }
 
-    static void execute(const dpp::slashcommand_t& event) {
-        //registerCommands(client);
+    static void execute(const dpp::slashcommand_t &event, dpp::cluster& client) {
+        register_commands(client);
         dpp::embed embed = dpp::embed()
                     .set_color(dpp::colors::blue_aquamarine)
                     .set_title("registered commands")

@@ -49,20 +49,14 @@ int main(int argc, char *argv[]) {
         if(event.command.get_command_name() == "ping") {
             Ping::execute(event);
         } else if(event.command.get_command_name() == "register") {
-            Register::execute(event);
+            Register::execute(event, client);
+        } else if(event.command.get_command_name() == "8ball") {
+            Ball::execute(event);
         }
     });
 
     client.on_ready([&client](const dpp::ready_t& event) {
-        if (dpp::run_once<struct register_bot_commands>()) {
-            Ping p;p.~Ping();
-            std::cout << Command::get_name() << " : " << Command::get_description() << std::endl;
-            client.global_command_create(dpp::slashcommand(Command::get_name(), Command::get_description(), client.me.id));
-
-            Register r;r.~Register();
-            std::cout << Command::get_name() << " : " << Command::get_description() << std::endl;
-            client.global_command_create(dpp::slashcommand(Command::get_name(), Command::get_description(), client.me.id));
-        }
+        std::cout << "hi" << std::endl;
     });
 
     client.start(dpp::st_wait);
