@@ -4,7 +4,6 @@
 #include "filesystem"
 #include "map"
 #include "Command.hpp"
-#include "Dev/register.hpp"
 
 void register_commands(dpp::cluster& client) {
     if (dpp::run_once<struct register_bot_commands>()) {
