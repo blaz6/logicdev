@@ -1,22 +1,70 @@
 #include <ctime>
-
-// Discord RPC
-#include "discord/discord.h"
-
-#include <csignal>
-#include <memory>
 #include <iostream>
 #include <cstring>
+#include <unistd.h>
+#include "vector"
+#include "filesystem"
 #include "headers/log.h"
 #include "headers/checkFileExistence.h"
 #include "headers/definitions.h"
 
+#include "headers/all_commands.h"
+#include "Commands/Command.hpp"
+
+#include <dpp/dpp.h>
+
 using std::cout;
 using std::string;
+namespace fs = std::filesystem;
+
+const string BOT_TOKEN = "MTA2OTk5MTk4ODI1NjA2MzYyOQ.GVmoRH.kJsJllkkqeAehresIPEZ6K9uUJegoYkYnMzbpQ";
+string Command::name;
+string Command::description;
 
 int main(int argc, char *argv[]) {
     Log log;
     log.setLevel(Log::INFO_LEVEL);
+
+    dpp::cluster client(BOT_TOKEN);
+
+    std::vector<string> files;
+    fs::path path = __FILE__;
+    for (const auto &entry : fs::directory_iterator(path.remove_filename().string() + "/Commands")) {
+        if (fs::is_regular_file(entry)) continue;
+        for (const auto &file : fs::directory_iterator(entry.path())) {
+            files.push_back(file.path().filename().string().substr(0, file.path().filename().string().length() - 4));
+        }
+    }
+
+    client.on_log(dpp::utility::cout_logger());
+    client.on_slashcommand([&client](const dpp::slashcommand_t& event) {
+        if(event.command.get_command_name() == "ping") {
+            Ping::execute(event);
+        } else if(event.command.get_command_name() == "register") {
+            Register::execute(event);
+        }
+    });
+
+    client.on_ready([&client](const dpp::ready_t& event) {
+        if (dpp::run_once<struct register_bot_commands>()) {
+            Ping p;p.~Ping();
+            std::cout << Command::get_name() << " : " << Command::get_description() << std::endl;
+            client.global_command_create(dpp::slashcommand(Command::get_name(), Command::get_description(), client.me.id));
+
+            Register r;r.~Register();
+            std::cout << Command::get_name() << " : " << Command::get_description() << std::endl;
+            client.global_command_create(dpp::slashcommand(Command::get_name(), Command::get_description(), client.me.id));
+        }
+    });
+
+    client.start(dpp::st_wait);
+
+
+
+
+
+
+    std::cin.get();
     for (int i = 0; i < argc; ++i) {
         if (!strcmp(argv[i], "self-uninstall")) {
             log.println("==> Uninstalling...");
@@ -30,37 +78,13 @@ int main(int argc, char *argv[]) {
         } else if (!strcmp(argv[i], "hlw")) {
             log.println("Hello World!");
             exit(0);
-        } else if (!strcmp(argv[i], "tut")) {
+        } else if (!strcmp(argv[i], "a discord bot?")) {
             log.info("Tutor");
-            discord::Core *core = nullptr;
-            discord::Result result = discord::Core::Create(795592654058160148,
-                                                           static_cast<uint64_t>(discord::CreateFlags::Default), &core);
-
-            if (result != discord::Result::Ok) {
-                std::cout << "Error initializing Discord: " << "\n";
-                return 1;
-            }
-            while (true) {
-                discord::Activity activity{};
-                activity.SetState("Playing");
-                activity.SetDetails("C++");
-                core->ActivityManager().UpdateActivity(activity, [&log](discord::Result result) {
-                    cout << static_cast<bool>(discord::Result::Ok) << "\n";
-                    if (result == discord::Result::Ok) {
-                        log.info("Successfully updated activity");
-                    } else
-                        log.error("Failed to update activity:");
-                });
-                cout << "updating activity" << "\n";
-                usleep(1000000 * 5);
-            }
-
-            // });
             std::cin.get();
             exit(0);
         } else if (!strcmp(argv[i], "time")) {
             while (true) {
-                usleep(1000000);
+                usleep(100000 * 1);
                 std::time_t result = std::time(nullptr);
                 cout << std::asctime(std::localtime(&result)) << "\n";
             }

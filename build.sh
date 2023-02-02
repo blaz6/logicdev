@@ -1,6 +1,6 @@
 #!/bin/sh
 EXECUTABLE=./logicdev
-BUILD_DIR=./buildDir/
+BUILD_DIR=./target
 mode=$1
 
 red='\033[0;31m'
@@ -14,7 +14,7 @@ if [ "$mode" = "" ]; then
   mode="Release"
 fi
 if [ "$mode" = "clean" ]; then
-    rm -rf $BUILD_DIR ./tmp ./src/discord ./lib/discord ./config
+    rm -rf $BUILD_DIR
     exit 0
 fi
 if [ "$mode" != "Debug" ] && [ "$mode" != "Release" ]; then
@@ -22,48 +22,32 @@ if [ "$mode" != "Debug" ] && [ "$mode" != "Release" ]; then
   exit 0
 fi
 
-echo -e "${yellow}==> Using $mode Mode!${reset}\n"
+printf "${yellow}==> Using %s Mode!${reset}\n" "$mode"
 if [ ! -d "$BUILD_DIR" ]; then
   mkdir "$BUILD_DIR"
 fi
-if [ ! -d "./tmp" ] && [ ! -d "./lib/discord" ] && [ ! -d "./src/discord" ]; then
-rm -rf tmp
-rm -rf lib/discord
-rm -rf src/discord
-mkdir tmp
-mkdir -p lib/discord
-mkdir -p src/discord
-
-cd tmp || exit 1
-if [ "$mode" = "Release" ]; then
-    wget "https://dl-game-sdk.discordapp.net/3.2.1/discord_game_sdk.zip" >/dev/null 2>&1
-    unzip discord*.zip >/dev/null 2>&1
-else
-    wget "https://dl-game-sdk.discordapp.net/3.2.1/discord_game_sdk.zip"
-    unzip discord*.zip
-fi
-cp lib/x86_64/* ../lib/discord/
-cp cpp/* ../src/discord/
-cd ../src/discord/ || exit 1
-
-sed s/std::int/int/g -i *.*
-sed s/std::uint/uint/g -i *.*
-
-cd ../../
-fi
+grep -rl "windows.h" . | xargs sed -i "s/windows.h/windows.h/g"
 
 cd "$BUILD_DIR" || exit 1
 printf "${magenta}==> Generating build files${reset}%s"
 if [ "$mode" = "Release" ]; then
+  if [ "$2" = "win" ]; then
+      cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=../../../toolchains/mingw-w64-x86_64.cmake -DCMAKE_BUILD_TYPE="$mode" ../ >/dev/null 2>&1
+  else
     cmake -G "Ninja" -DCMAKE_BUILD_TYPE="$mode" ../ >/dev/null 2>&1
+  fi
 else
+  if [ "$2" = "win" ]; then
+      cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=../../../toolchains/mingw-w64-x86_64.cmake -DCMAKE_BUILD_TYPE="$mode" ../
+  else
     cmake -G "Ninja" -DCMAKE_BUILD_TYPE="$mode" ../
+  fi
 fi
 printf "\n${magenta}==> Building project%s"
 if [ "$mode" = "Release" ]; then
-    ninja | ../lib/shiki/shiki >/dev/null 2>&1
+    ninja >/dev/null 2>&1
 else
-    ninja | ../lib/shiki/shiki
+    ninja
 fi
 printf "\n${green}==> Successfully built %s executable${reset}" "$EXECUTABLE"
 if [ -f ../config/config ]; then
