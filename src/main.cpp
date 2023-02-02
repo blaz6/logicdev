@@ -2,11 +2,15 @@
 #include <iostream>
 #include <cstring>
 #include <unistd.h>
+#include <fstream>
+#include <sstream>
+#include <map>
 #include "vector"
 #include "filesystem"
 #include "headers/log.h"
 #include "headers/checkFileExistence.h"
 #include "headers/definitions.h"
+#include "headers/read_env.hpp"
 
 #include "headers/all_commands.h"
 #include "Commands/Command.hpp"
@@ -17,18 +21,22 @@ using std::cout;
 using std::string;
 namespace fs = std::filesystem;
 
-const string BOT_TOKEN = "MTA2OTk5MTk4ODI1NjA2MzYyOQ.GVmoRH.kJsJllkkqeAehresIPEZ6K9uUJegoYkYnMzbpQ";
+string BOT_TOKEN;
 string Command::name;
 string Command::description;
 
 int main(int argc, char *argv[]) {
+    fs::path path = __FILE__;
+    std::map<std::string, std::string> env_vars = read_dotenv(path.remove_filename().string() + "/.env");
+    for (const auto& [key, value] : env_vars) {
+        if(key == "BOT_TOKEN") BOT_TOKEN = value;
+    }
     Log log;
     log.setLevel(Log::INFO_LEVEL);
 
     dpp::cluster client(BOT_TOKEN);
 
     std::vector<string> files;
-    fs::path path = __FILE__;
     for (const auto &entry : fs::directory_iterator(path.remove_filename().string() + "/Commands")) {
         if (fs::is_regular_file(entry)) continue;
         for (const auto &file : fs::directory_iterator(entry.path())) {
