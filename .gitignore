@@ -3,6 +3,6 @@
 lib/discord
 src/discord
 config
-buildDir
 tmp
 .env
+target
