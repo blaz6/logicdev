@@ -1,11 +1,11 @@
 #include "dpp/dpp.h"
 #include "../../headers/8ball.h"
+#include "../../headers/log.h"
 #include "curl/curl.h"
 #include "nlohmann/json.hpp"
 
-size_t writeCallback(char *ptr, size_t size, size_t nmemb, std::string *userdata)
-{
-    userdata->append(ptr, size * nmemb);
+size_t writeCallback(char *ptr, size_t size, size_t nmemb, std::string *userdata) {
+    userdata -> append(ptr, size * nmemb);
     return size * nmemb;
 }
 
@@ -27,7 +27,7 @@ void Ball::execute(const dpp::slashcommand_t& event) {
 
         res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
-            std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
+            std::cout << "\033[1;31m" << "curl_easy_perform() failed: " << curl_easy_strerror(res) << "\033[0m" << "\n";
         }
 
         curl_easy_cleanup(curl);
@@ -35,10 +35,11 @@ void Ball::execute(const dpp::slashcommand_t& event) {
 
     nlohmann::json json = nlohmann::json::parse(response);
     std::string reading = json.value("reading", "oops");
+    std::string vprasanje = std::get<std::string>(event.get_parameter("vprašanje"));
 
     dpp::embed embed = dpp::embed()
-                    .set_color(dpp::colors::blue_aquamarine)
-                    .set_title("cri")
+                    .set_color(0x213482)
+                    .set_title(vprasanje)
                     .set_description(reading)
                     .set_timestamp(time(nullptr));
 

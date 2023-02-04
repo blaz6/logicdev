@@ -8,7 +8,7 @@ Ping::~Ping() {
 
 void Ping::execute(const dpp::slashcommand_t& event) {
     dpp::embed embed = dpp::embed()
-                    .set_color(dpp::colors::blue_aquamarine)
+                    .set_color(0x213482)
                     .set_title("This is the answer to the ping command")
                     .set_description("This should work")
                     .set_timestamp(time(nullptr));

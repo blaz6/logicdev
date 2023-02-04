@@ -9,8 +9,8 @@ Register::~Register() {
 
 void Register::execute(const dpp::slashcommand_t &event, dpp::cluster &client) {
     register_commands(client);
-    dpp::embed embed = dpp::embed().set_color(dpp::colors::blue_aquamarine).set_title(
-            "registered commands").set_description("This should work").set_timestamp(time(nullptr));
+    dpp::embed embed = dpp::embed().set_color(0x213482).set_title(
+            "registered commands").set_description("\n").set_timestamp(time(nullptr));
 
     event.reply(dpp::message(event.command.channel_id, embed));
 }

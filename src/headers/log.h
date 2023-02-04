@@ -1,36 +1,31 @@
 #pragma once
 #include "iostream"
 
+using std::string;
+
 class Log {
     public:
         enum Level {
             ERROR_LEVEL, WARNING_LEVEL, INFO_LEVEL
         };
     private:
-        Level m_logLevel = INFO_LEVEL;
+        static Level m_logLevel;
+        static const string RESET;
+        static const string YELLOW;
+        static const string GREEN;
+        static const string BLUE;
+        static const string RED;
+        static const string CYAN;
 
 
     public:
-        void setLevel(Level level) {
-            m_logLevel = level;
-        }
+        static void setLevel(Level level);
 
-        void warn(const char *warn) const {
-            if (m_logLevel >= WARNING_LEVEL)
-                std::cout << "[WARNING]: " << warn << "\n";
-        }
+        static void warn(string warn);
 
-        void error(const char *error) const {
-            if (m_logLevel >= ERROR_LEVEL)
-                std::cout << "[ERROR]: " << error << "\n";
-        }
+        static void error(string error);
 
-        void info(const char *info) const {
-            if (m_logLevel >= INFO_LEVEL)
-                std::cout << "[INFO]: " << info << "\n";
-        }
+        static void info(string info);
 
-        void println(const char *string) const {
-            std::cout << string << "\n";
-        }
+        static void println(string normal_string);
 };
