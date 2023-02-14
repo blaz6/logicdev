@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.24)
 
 project (logicdev)
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -std=c++23")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 set (source_dir "${PROJECT_SOURCE_DIR}/src/")
 
 file (GLOB_RECURSE source_files
@@ -23,11 +23,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE libs/DPP/include)
 find_package(CURL REQUIRED)
 include_directories(${CURL_INCLUDE_DIRS})
 target_link_libraries(logicdev ${CURL_LIBRARIES})
-
-
-
-
-
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
 	CXX_STANDARD 23
