@@ -1,6 +1,6 @@
 .cmake
 .idea
-lib/discord
+lib/Crow
 src/discord
 config
 tmp
