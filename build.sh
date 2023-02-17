@@ -1,98 +1,48 @@
 #!/bin/sh
-EXECUTABLE=./logicdev
-BUILD_DIR=./target
-mode=$1
+BUILD_DIR=target
+LINUX_BUILD_DIR=${BUILD_DIR}/linux
+WINDOWS_BUILD_DIR=${BUILD_DIR}/win
+BINARIES_DIR=${BUILD_DIR}/release
+mode=Debug
 
-red='\033[0;31m'
-green='\033[0;32m'
-yellow='\033[0;33m'
-blue='\033[0;34m'
-magenta='\033[0;35m'
+red='\033[1;31m'
+green='\033[1;32m'
+yellow='\033[1;33m'
+blue='\033[1;34m'
+magenta='\033[1;35m'
 reset='\033[0m'
+bold='\033[1m'
 
-if [ "$mode" = "" ]; then
-  mode="Release"
-fi
-if [ "$mode" = "clean" ]; then
-    rm -rf $BUILD_DIR
-    exit 0
-fi
-if [ "$mode" != "Debug" ] && [ "$mode" != "Release" ]; then
-  echo -e "${red}==> Invalid Mode:${reset} '$mode'\nAvailable options: Debug|Release"
-  exit 0
-fi
-
-printf "${yellow}==> Using %s Mode!${reset}\n" "$mode"
+printf "${yellow}::${reset}${bold} Using %s Mode!${reset}\n" "$mode"
 if [ ! -d "$BUILD_DIR" ]; then
-  mkdir "$BUILD_DIR"
+  mkdir -p "${LINUX_BUILD_DIR}"
+  mkdir -p "${WINDOWS_BUILD_DIR}"
+  mkdir -p "${BINARIES_DIR}"
 fi
-grep -rl "windows.h" . | xargs sed -i "s/windows.h/windows.h/g"
 
-cd "$BUILD_DIR" || exit 1
-printf "${magenta}==> Generating build files${reset}%s"
-if [ "$mode" = "Release" ]; then
-  if [ "$2" = "win" ]; then
-      cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=../../../toolchains/mingw-w64-x86_64.cmake -DCMAKE_BUILD_TYPE="$mode" ../ >/dev/null 2>&1
-  else
-    cmake -G "Ninja" -DCMAKE_BUILD_TYPE="$mode" ../ >/dev/null 2>&1
-  fi
-else
-  if [ "$2" = "win" ]; then
-      cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=../../../toolchains/mingw-w64-x86_64.cmake -DCMAKE_BUILD_TYPE="$mode" ../
-  else
-    cmake -G "Ninja" -DCMAKE_BUILD_TYPE="$mode" ../
-  fi
-fi
-printf "\n${magenta}==> Building project%s"
-if [ "$mode" = "Release" ]; then
-    ninja >/dev/null 2>&1
-else
-    ninja
-fi
-printf "\n${green}==> Successfully built %s executable${reset}" "$EXECUTABLE"
-if [ -f ../config/config ]; then
-  if grep -q "Y" ../config/config; then
-    if test -f "$EXECUTABLE"; then
-      printf "\n\n${magenta}==> Installing %s globally...${reset}" "$EXECUTABLE"
-      sudo cp ./$EXECUTABLE /usr/bin/
-      printf "\n${green}==> Successfully %sinstalled${reset}" ""
-    else
-      echo "Please first run ./build.sh!"
-    fi
-  fi
-  kill -2 $$
-fi
-printf "\n\n${blue}Do you want to install this executable%s globally? [Y/n]${reset} " ""
-read -r installExecutable
-if [ "$installExecutable" = "" ]; then
-  installExecutable="Y"
-fi
-if [ "$installExecutable" != "n" ] && [ "$installExecutable" = "Y" ]; then
-  if test -f "$EXECUTABLE"; then
-    printf "${magenta}==> Installing %s globally...${reset}" "$EXECUTABLE"
-      sudo cp ./$EXECUTABLE /usr/bin/
-      printf "\n${green}==> Successfully installed %s" ""
-  else
-    echo "Please first run ./build.sh!"
-  fi
-else
-  echo "==> Not installing this executable globally. Exiting..."
-fi
-cd ../
-if [ -f ./config/config ]; then
-  kill -2 $$
-fi
-printf "\n\n${blue}Do you want to save%s this setting? [Y/n]${reset} " ""
-read -r saveSettings
-if [ "$saveSettings" = "" ]; then
-  saveSettings="Y"
-fi
-if [ "$saveSettings" != "n" ] && [ "$saveSettings" = "Y" ]; then
-  printf "${magenta}==> %sSaving settings...${reset}"
-  rm -rf config
-  mkdir config
-  touch config/config
-  echo "$saveSettings" > ./config/config
-  printf "\n${green}==> Saved settings in ./config/config${reset}%s" ""
-fi
+printf "${yellow}::${reset}${bold} Building linux binaries${reset}\n%s"
+printf "${magenta}  ->${reset}${bold} Generating build files${reset}\n%s"
+cmake -G "Ninja" -B${LINUX_BUILD_DIR} -DCMAKE_BUILD_TYPE=${mode}
+cd ${LINUX_BUILD_DIR}
+printf "\n${magenta}  ->${reset}${bold} Building project${reset}\n%s"
+ninja
+cd ../../
+
+printf "${yellow}::${reset}${bold} Building windows binaries${reset}\n%s"
+printf "${magenta}  ->${reset}${bold} Generating build files${reset}\n%s"
+#msvc-x64-cmake -G "Ninja" -B${WINDOWS_BUILD_DIR} -DCMAKE_BUILD_TYPE="$mode" #-DCMAKE_TOOLCHAIN_FILE=../../toolchains/WindowsToolchain/Windows.MSVC.toolchain.cmake
+cmake -B${WINDOWS_BUILD_DIR} -DCMAKE_BUILD_TYPE=${mode} -DCMAKE_TOOLCHAIN_FILE=../../toolchains/mingw-w64-x86_64.cmake
+cd ${WINDOWS_BUILD_DIR}
+printf "\n${magenta}  ->${reset}${bold} Building project${reset}\n%s"
+make
+cd ../../
+
+printf "${yellow}::${reset}${bold} Distributing binaries in ./target/release${reset}\n%s"
+cd ${LINUX_BUILD_DIR}
+cp logicdev ../release
+cd ../../
+cd ${WINDOWS_BUILD_DIR}
+cp logicdev.exe ../release
+
+printf "${green}::${reset}${bold} Done${reset}" ""
 kill -2 $$

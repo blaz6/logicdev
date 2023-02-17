@@ -1,4 +1,5 @@
 cmake_minimum_required (VERSION 3.24)
+MESSAGE(STATUS "Using toolchain file: ${CMAKE_TOOLCHAIN_FILE}")
 
 project (logicdev)
 
@@ -14,7 +15,6 @@ file (GLOB_RECURSE source_files
 	"${source_dir}/Commands/Fun/*.cpp"
 )
 add_subdirectory(lib/DPP)
-
 add_executable (${PROJECT_NAME} ${source_files})
 
 target_link_libraries(${PROJECT_NAME} dpp)

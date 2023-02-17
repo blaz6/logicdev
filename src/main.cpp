@@ -14,8 +14,8 @@
 #include <map>
 #include <sstream>
 #include <unistd.h>
-
 #include <dpp/dpp.h>
+#include "headers/crow_all.h"
 
 using std::cout;
 using std::map;
@@ -86,15 +86,23 @@ int main(int argc, char *argv[]) {
         cout << std::asctime(std::localtime(&result)) << "\n";
       }
       exit(0);
+    } else if (!strcmp(argv[i], "http")) {
+        crow::SimpleApp app;
+        app.loglevel(crow::LogLevel::Warning);
+        CROW_ROUTE(app, "/")([](){
+            return "Hello world";
+        });
+        app.port(8080).multithreaded().run();
     }
   }
 
   /** This is the main program if no arguments are provided */
-  Log::println(((string) "Usage: " + EXECUTABLE_NAME + " [options]").c_str());
+  Log::println((string) "Usage: " + EXECUTABLE_NAME + " [options]");
   cout << "\n";
   Log::println("==> Options:");
   Log::println("   self-uninstall - uninstalls the program");
   Log::println("   hlw - Prints Hello World!");
   Log::println("   time - Displays time");
   Log::println("   start - start Byte");
+  Log::println("   start - start http server");
 }

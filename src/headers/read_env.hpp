@@ -4,7 +4,7 @@
 #include "fstream"
 #include "sstream"
 
-std::map<std::string, std::string> read_dotenv(const std::string& filename) {
+inline std::map<std::string, std::string> read_dotenv(const std::string& filename) {
     std::ifstream file(filename);
     std::map<std::string, std::string> env_vars;
 
