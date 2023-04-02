@@ -1,0 +1,9 @@
+{
+  "TARGET_FILENAME": "example",
+  "BUILD_DIR": "target",
+  "LINUX_BUILD_DIR": "target/linux",
+  "WINDOWS_BUILD_DIR": "target/windows",
+  "BINARIES_DIR": "target/release",
+  "MODE": "Debug",
+  "TARGETS": ["LINUX"]
+}

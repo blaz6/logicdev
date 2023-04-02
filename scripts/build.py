@@ -1,10 +1,19 @@
 import json
-from colorama import Fore, Style, init
-from os import system, mkdir, path
+from subprocess import check_call, DEVNULL
+from os import system, mkdir, path, sys
 from shutil import copy2
+import pkg_resources
+
+required = { 'colorama' }
+installed = { pkg.key for pkg in pkg_resources.working_set }
+if required - installed: check_call([sys.executable, '-m', 'pip', 'install', *(required - installed)], stdout=DEVNULL)
+
+from colorama import Fore, Style, init
 init()
 
-details = json.load(open("./logicdev.conf.json"))
+json_file = "./main.conf.json"
+
+details = json.load(open(json_file))
 for name, value in Fore.__dict__.items():
     if not name.startswith("__") and not callable(value):
         globals()[name] = value
@@ -21,13 +30,9 @@ def build_binaries(OS: str):
       println(MAGENTA, True, "Generating build files")
       system("cmake -G 'Ninja' -B" + details['LINUX_BUILD_DIR'] + " -DCMAKE_BUILD_TYPE=" + details['MODE'] + "> /dev/null 2>&1")
       println(MAGENTA, True, "Building project")
-      system("cd " + details['LINUX_BUILD_DIR'] + " && ninja" + "> /dev/null 2>&1")
+      system("cd " + details['LINUX_BUILD_DIR'] + " && ninja")# + "> /dev/null 2>&1")
     case "WINDOWS":
-      println(YELLOW, False, "Building windows binaries")
-      println(MAGENTA, True, "Generating build files")
-      system("cmake -G 'Ninja' -B" + details['WINDOWS_BUILD_DIR'] + " -DCMAKE_BUILD_TYPE=" + details['MODE'] + " -DCMAKE_TOOLCHAIN_FILE=../../toolchains/mingw-w64-x86_64.cmake" + "> /dev/null 2>&1")
-      println(MAGENTA, True, "Building project")
-      system("cd " + details['WINDOWS_BUILD_DIR'] + " && ninja" + "> /dev/null 2>&1")
+      return
     case _:
       println(RED, None, "Not a valid Operating System: " + f"{details['TARGETS']}");
       println(GREEN, True, "Valid operating systems: " + "['LINUX', 'WINDOWS']")
@@ -47,7 +52,12 @@ for target in details["TARGETS"]:
 
 println(YELLOW, False, f"Distributing binaries in ./{details['BINARIES_DIR']}")
 for target in details["TARGETS"]:
-  if path.exists(details[target + "_BUILD_DIR"] + "/" + details["TARGET_FILENAME"]):
-    copy2(details[target + '_BUILD_DIR'] + "/" + details["TARGET_FILENAME"], details['BINARIES_DIR'])
+  match target:
+    case "LINUX":
+      if path.exists(details[target + "_BUILD_DIR"] + "/" + details["TARGET_FILENAME"]):
+        copy2(details[target + '_BUILD_DIR'] + "/" + details["TARGET_FILENAME"], details['BINARIES_DIR'])
+    case "WINDOWS":
+      if path.exists(details[target + "_BUILD_DIR"] + "/" + details["TARGET_FILENAME"] + ".exe"):
+        copy2(details[target + '_BUILD_DIR'] + "/" + details["TARGET_FILENAME"] + ".exe", details['BINARIES_DIR'])
 
 println(GREEN, None, "Done")
