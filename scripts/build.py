@@ -1,47 +1,53 @@
 import json
 from colorama import Fore, Style, init
-import os
-import shutil
+from os import system, mkdir, path
+from shutil import copy2
 init()
 
 details = json.load(open("./logicdev.conf.json"))
 for name, value in Fore.__dict__.items():
     if not name.startswith("__") and not callable(value):
         globals()[name] = value
-BRIGHT = Style.BRIGHT
+
+def println(COLOR: str, arrow: bool, string: str):
+  if(arrow == None): print(f"{COLOR}" + string);
+  elif(not arrow): print(f"{COLOR}:: {RESET}{Style.BRIGHT}" + string + f"{RESET}")
+  elif(arrow): print(f"{COLOR}   ->{RESET}{Style.BRIGHT} " + string + f"{RESET}")
 
 def build_binaries(OS: str):
   match OS:
     case "LINUX":
-      print(f"{YELLOW}:: {RESET}{BRIGHT}Building linux binaries{RESET}")
-      print(f"{MAGENTA}   ->{RESET}{BRIGHT} Generating build files{RESET}")
-      os.system("cmake -G 'Ninja' -B" + details['LINUX_BUILD_DIR'] + " -DCMAKE_BUILD_TYPE=" + details['MODE'] + "> /dev/null 2>&1")
-      print(f"{MAGENTA}   ->{RESET}{BRIGHT} Building project{RESET}")
-      os.system("cd " + details['LINUX_BUILD_DIR'] + " && ninja")# + "> /dev/null 2>&1")
+      println(YELLOW, False, "Building linux binaries")
+      println(MAGENTA, True, "Generating build files")
+      system("cmake -G 'Ninja' -B" + details['LINUX_BUILD_DIR'] + " -DCMAKE_BUILD_TYPE=" + details['MODE'] + "> /dev/null 2>&1")
+      println(MAGENTA, True, "Building project")
+      system("cd " + details['LINUX_BUILD_DIR'] + " && ninja" + "> /dev/null 2>&1")
     case "WINDOWS":
-      print(f"{YELLOW}:: {RESET}{BRIGHT}Building windows binaries{RESET}")
-      print(f"{MAGENTA}   ->{RESET}{BRIGHT} Generating build files{RESET}")
-      os.system("cmake -G 'Ninja' -B" + details['WINDOWS_BUILD_DIR'] + " -DCMAKE_BUILD_TYPE=" + details['MODE'] + " -DCMAKE_TOOLCHAIN_FILE=../../toolchains/mingw-w64-x86_64.cmake" + "> /dev/null 2>&1")
-      print(f"{MAGENTA}   ->{RESET}{BRIGHT} Building project{RESET}")
-      os.system("cd " + details['WINDOWS_BUILD_DIR'] + " && ninja")# + "> /dev/null 2>&1")
+      println(YELLOW, False, "Building windows binaries")
+      println(MAGENTA, True, "Generating build files")
+      system("cmake -G 'Ninja' -B" + details['WINDOWS_BUILD_DIR'] + " -DCMAKE_BUILD_TYPE=" + details['MODE'] + " -DCMAKE_TOOLCHAIN_FILE=../../toolchains/mingw-w64-x86_64.cmake" + "> /dev/null 2>&1")
+      println(MAGENTA, True, "Building project")
+      system("cd " + details['WINDOWS_BUILD_DIR'] + " && ninja" + "> /dev/null 2>&1")
     case _:
-        print(f"{RED}Not a valid Operating System");
+      println(RED, None, "Not a valid Operating System: " + f"{details['TARGETS']}");
+      println(GREEN, True, "Valid operating systems: " + "['LINUX', 'WINDOWS']")
+      raise SystemExit(1)
 
-print(f"{BRIGHT}{YELLOW}:: {RESET}{BRIGHT}Using {details['MODE']} Mode!{RESET}")
+println(YELLOW, None, f"Using {details['MODE']} Mode!")
+println(BLUE, True, f'Selected targets: {details["TARGETS"]}')
 
-if not os.path.isdir(details['BUILD_DIR']):
-  os.mkdir(details['BUILD_DIR'])
-  os.mkdir(details['BINARIES_DIR'])
-  os.mkdir(details['LINUX_BUILD_DIR'])
-  os.mkdir(details['WINDOWS_BUILD_DIR'])
+if not path.isdir(details['BUILD_DIR']):
+  mkdir(details['BUILD_DIR'])
+  mkdir(details['BINARIES_DIR'])
+  for target in details["TARGETS"]:
+    mkdir(details[target + "_BUILD_DIR"])
 
-build_binaries("LINUX")
-build_binaries("WINDOWS")
+for target in details["TARGETS"]:
+  build_binaries(target)
 
-print(f"{YELLOW}:: {RESET}{BRIGHT}Distributing binaries in ./{details['BINARIES_DIR']}{RESET}")
-if os.path.exists(details['LINUX_BUILD_DIR'] + "/logicdev"):
-  shutil.copy2(details['LINUX_BUILD_DIR'] + "/logicdev", details['BINARIES_DIR'])
-if os.path.exists(details['LINUX_BUILD_DIR'] + "/logicdev.exe"):
-  shutil.copy2(details['WINDOWS_BUILD_DIR'] + "/logicdev.exe", details['BINARIES_DIR'])
+println(YELLOW, False, f"Distributing binaries in ./{details['BINARIES_DIR']}")
+for target in details["TARGETS"]:
+  if path.exists(details[target + "_BUILD_DIR"] + "/" + details["TARGET_FILENAME"]):
+    copy2(details[target + '_BUILD_DIR'] + "/" + details["TARGET_FILENAME"], details['BINARIES_DIR'])
 
-print(f"{GREEN}:: {RESET}{BRIGHT}Done{RESET}")
+println(GREEN, None, "Done")

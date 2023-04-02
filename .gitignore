@@ -10,3 +10,4 @@ target
 build
 .cache
 cmake-build-debug
+logicdev.conf.json
